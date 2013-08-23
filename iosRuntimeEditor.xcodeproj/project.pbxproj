@@ -16,7 +16,7 @@
 		CBC2A8CD17C7D56800351661 /* Default.png in Resources */ = {isa = PBXBuildFile; fileRef = CBC2A8CC17C7D56800351661 /* Default.png */; };
 		CBC2A8CF17C7D56800351661 /* Default@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CBC2A8CE17C7D56800351661 /* Default@2x.png */; };
 		CBC2A8D117C7D56800351661 /* Default-568h@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = CBC2A8D017C7D56800351661 /* Default-568h@2x.png */; };
-		CBC2A8D417C7D56800351661 /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = CBC2A8D317C7D56800351661 /* ViewController.m */; };
+		CBC2A8D417C7D56800351661 /* ViewController.mm in Sources */ = {isa = PBXBuildFile; fileRef = CBC2A8D317C7D56800351661 /* ViewController.mm */; };
 		CBC2A8D717C7D56800351661 /* ViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = CBC2A8D517C7D56800351661 /* ViewController.xib */; };
 /* End PBXBuildFile section */
 
@@ -35,7 +35,7 @@
 		CBC2A8CE17C7D56800351661 /* Default@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default@2x.png"; sourceTree = "<group>"; };
 		CBC2A8D017C7D56800351661 /* Default-568h@2x.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = "Default-568h@2x.png"; sourceTree = "<group>"; };
 		CBC2A8D217C7D56800351661 /* ViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ViewController.h; sourceTree = "<group>"; };
-		CBC2A8D317C7D56800351661 /* ViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ViewController.m; sourceTree = "<group>"; };
+		CBC2A8D317C7D56800351661 /* ViewController.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ViewController.mm; sourceTree = "<group>"; };
 		CBC2A8D617C7D56800351661 /* en */ = {isa = PBXFileReference; lastKnownFileType = file.xib; name = en; path = en.lproj/ViewController.xib; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -86,7 +86,7 @@
 				CBC2A8C917C7D56800351661 /* AppDelegate.h */,
 				CBC2A8CA17C7D56800351661 /* AppDelegate.m */,
 				CBC2A8D217C7D56800351661 /* ViewController.h */,
-				CBC2A8D317C7D56800351661 /* ViewController.m */,
+				CBC2A8D317C7D56800351661 /* ViewController.mm */,
 				CBC2A8D517C7D56800351661 /* ViewController.xib */,
 				CBC2A8C117C7D56700351661 /* Supporting Files */,
 			);
@@ -175,7 +175,7 @@
 			files = (
 				CBC2A8C717C7D56800351661 /* main.m in Sources */,
 				CBC2A8CB17C7D56800351661 /* AppDelegate.m in Sources */,
-				CBC2A8D417C7D56800351661 /* ViewController.m in Sources */,
+				CBC2A8D417C7D56800351661 /* ViewController.mm in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
