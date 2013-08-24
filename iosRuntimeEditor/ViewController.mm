@@ -7,6 +7,8 @@
 //
 
 #import "ViewController.h"
+#import <objc/runtime.h>
+#import <objc/message.h>
 #include <list>
 
 @class PointContext;
@@ -15,11 +17,21 @@ CGRect rectInflate(CGPoint pt, CGFloat edge)
 {
     return CGRectMake(pt.x - edge/2, pt.y - edge/2, edge, edge);
 }
+
+CGPoint tl(CGRect rect) {  return rect.origin; }
+CGPoint tr(CGRect rect)  { return CGPointMake(rect.origin.x + rect.size.width, rect.origin.y) ;}
+CGPoint rb(CGRect rect)  { return CGPointMake(rect.origin.x + rect.size.width, rect.origin.y) ;}
+CGPoint bl(CGRect rect)  { return CGPointMake(rect.origin.x + rect.size.width, rect.origin.y) ;}
+
+
+
 #define LINEMARGIN 4
 
 
 enum EPtState {
-    eInside = 0x0000,
+    eNone = 0x0000,
+    
+    eInside = 0x1000,
     
     eInCornerTL = 0x0001,
     eInCornerTR = 0x0002,
@@ -37,23 +49,38 @@ enum EPtState {
 
 EPtState ptState(CGPoint pt, CGRect frame)
 {
-//    if (rectInflate() ) {
-//
-//    }
     
-    return  eInside;
+    if (CGRectContainsPoint(rectInflate(tl(frame), LINEMARGIN), pt)) {
+        return eInCornerTL;
+    }
+    if (CGRectContainsPoint(rectInflate(tr(frame), LINEMARGIN), pt)) {
+        return eInCornerTR;
+    }
+    if (CGRectContainsPoint(rectInflate(rb(frame), LINEMARGIN), pt)) {
+        return eInCornerRB;
+    }
+    if (CGRectContainsPoint(rectInflate(bl(frame), LINEMARGIN), pt)) {
+        return eInCornerBL;
+    }
+    
+    if (CGRectContainsPoint(frame, pt)) {
+        return eInside;
+    }
+    
+    return  eNone;
 }
 
 
 bool isInCorner(EPtState e)
 {
-    return  (e | eInCorner) == eInCorner;
+    return  (e & eInCorner) == eInCorner;
 }
 
 bool isInLine(EPtState e)
 {
-    return (e | eInEdge) == eInEdge;
+    return (e & eInEdge) == eInEdge;
 }
+
 
 
 
@@ -84,8 +111,8 @@ PointContext* hitTest(CGPoint pt,  UIView* root)
         q.pop_back();
         
         for(UIView *childView in top.subviews) {
-            CGPoint pt = [childView convertPoint: pt fromView:root];
-            enum EPtState state = ptState(pt, childView.frame);
+            CGPoint inpt = [childView convertPoint: pt fromView:root];
+            enum EPtState state = ptState(inpt, childView.bounds);
             if (isInCorner( state )) {
                 ctx.ptCtx = state;
                 ctx.view = childView;
@@ -97,16 +124,30 @@ PointContext* hitTest(CGPoint pt,  UIView* root)
             else if ( state == eInside && !isInCorner(ctx.ptCtx)) {
                 ctx.ptCtx = state;
                 ctx.view = childView;
-            }
-            q.push_front(childView);
+                q.push_front(childView);
+            }            
         }
     }
     return ctx;
 }
 
 
-@interface ViewController ()
+void disableChildren (UIView* root)
+{
+    for (UIView *childView in root.subviews) {
+        [root.subviews makeObjectsPerformSelector:@selector(setUserInteractionEnabled:) withObject:[NSNumber numberWithBool:FALSE]];
+        disableChildren(childView);
+    }    
+}
 
+
+
+@interface ViewController ()
+{
+    PointContext *ctx ;
+    CGPoint lastPos;
+    
+}
 @end
 
 @implementation ViewController
@@ -115,6 +156,7 @@ PointContext* hitTest(CGPoint pt,  UIView* root)
 {
     [super viewDidLoad];
 	// Do any additional setup after loading the view, typically from a nib.
+    disableChildren(self.view);
 }
 
 - (void)didReceiveMemoryWarning
@@ -124,9 +166,64 @@ PointContext* hitTest(CGPoint pt,  UIView* root)
 }
 
 
+-(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    //NSLog(@"touchesBegan");
+    for (UITouch *touch in touches)
+    {
+        CGPoint pt = [touch locationInView:self.view];
+        ctx = hitTest(pt, self.view);
+        lastPos = pt;
+        NSLog(@"view tag [%d] state %d" , ctx.view.tag, ctx.ptCtx);
+    }
+    
+}
 
+-(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    //NSLog(@"touchesMoved");
+    for (UITouch *touch in touches)
+    {
+        if (ctx.view != self.view && ctx.ptCtx == eInside)
+        {
+            CGPoint curPt = [touch locationInView:self.view];
+//            ctx.view.center = CGPointMake(ctx.view.center.x [touch locationInView:self.]  + , );
+        }
+    }
+}
 
+-(void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
+{
+    //NSLog(@"touchesEnded");
+}
 
+void Swizzle(Class c, SEL orig, SEL newsel)
+{
+    Method origMethod = class_getInstanceMethod(c, orig);
+    Method newMethod = class_getInstanceMethod(c, newsel);
+    c = object_getClass((id)c);
+    
+    if(class_addMethod(c, orig, method_getImplementation(newMethod), method_getTypeEncoding(newMethod)))
+        class_replaceMethod(c, newsel, method_getImplementation(origMethod), method_getTypeEncoding(origMethod));
+    else
+         method_exchangeImplementations(origMethod, newMethod);
+}
 
+//- (void)drawRect:(CGRect)rect {
+//    [super drawRect:rect];
+//    
+//    CGContextRef context = UIGraphicsGetCurrentContext();
+//    CGContextSetStrokeColorWithColor(context, [UIColor redColor].CGColor);
+//    
+//    // Draw them with a 2.0 stroke width so they are a bit more visible.
+//    CGContextSetLineWidth(context, 2.0);
+//    
+//    CGContextMoveToPoint(context, 0,0); //start at this point
+//    
+//    CGContextAddLineToPoint(context, 20, 20); //draw to this point
+//    
+//    // and now draw the Path!
+//    CGContextStrokePath(context);
+//}
 
 @end
