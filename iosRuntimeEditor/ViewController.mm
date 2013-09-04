@@ -23,6 +23,59 @@ CGPoint tr(CGRect rect)  { return CGPointMake(rect.origin.x + rect.size.width, r
 CGPoint rb(CGRect rect)  { return CGPointMake(rect.origin.x + rect.size.width, rect.origin.y) ;}
 CGPoint bl(CGRect rect)  { return CGPointMake(rect.origin.x + rect.size.width, rect.origin.y) ;}
 
+struct CPoint :public CGPoint {
+public:
+    CPoint(CGFloat x, CGFloat y)
+    {
+        this->x = x;
+        this->y= y;
+    }
+    CPoint(const CGPoint& ref)
+    {
+        x = ref.x;
+        y = ref.y ;
+    }
+    void operator = (const CGPoint& ref)
+    {
+        x = ref.x;
+        y = ref.y;
+    }
+    
+    CPoint operator + (const CGPoint& ref )
+    {
+        return CPoint(this->x + ref.x, this->y + ref.y);
+    }
+    
+    CPoint operator - (const CGPoint& ref)
+    {
+        return CPoint(this->x -ref.x, this->y - ref.y);
+    }
+    
+    CPoint& operator += (const CGPoint& ref)
+    {
+        x += ref.x;
+        y += ref.y;
+        return *this;
+    }
+    
+    CPoint& operator -= (const CGPoint& ref)
+    {
+        x -= ref.x;
+        y -= ref.y;
+        return *this;
+    }
+    
+    bool operator == (const CGPoint& ref)
+    {
+        return  x == ref.x && y == ref.y;
+    }
+    
+    bool operator != (const CGPoint& ref)
+    {
+        return  !(*this == ref);
+    }
+};
+
 
 
 #define LINEMARGIN 4
@@ -174,9 +227,8 @@ void disableChildren (UIView* root)
         CGPoint pt = [touch locationInView:self.view];
         ctx = hitTest(pt, self.view);
         lastPos = pt;
-        NSLog(@"view tag [%d] state %d" , ctx.view.tag, ctx.ptCtx);
+        //NSLog(@"view tag [%d] state %d" , ctx.view.tag, ctx.ptCtx);
     }
-    
 }
 
 -(void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -187,7 +239,8 @@ void disableChildren (UIView* root)
         if (ctx.view != self.view && ctx.ptCtx == eInside)
         {
             CGPoint curPt = [touch locationInView:self.view];
-//            ctx.view.center = CGPointMake(ctx.view.center.x [touch locationInView:self.]  + , );
+            ctx.view.center = CGPointMake(ctx.view.center.x + curPt.x - lastPos.x ,  ctx.view.center.y + curPt.y - lastPos.y);
+            lastPos = [touch locationInView:self.view];
         }
     }
 }
